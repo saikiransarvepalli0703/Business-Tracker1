@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TradeFlow — Business Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg0:#0c0d11;--bg1:#12141a;--bg2:#181b24;--bg3:#1e2230;
+  --border:#252a3a;--border2:#2e3550;
+  --text:#eceef5;--text2:#9da3bc;--text3:#5c6280;
+  --amber:#f59e0b;--amber2:#d97706;--amber-g:rgba(245,158,11,0.10);
+  --emerald:#10b981;--emerald2:#059669;--emerald-g:rgba(16,185,129,0.08);
+  --rose:#f43f5e;--rose2:#e11d48;--rose-g:rgba(244,63,94,0.09);
+  --sky:#38bdf8;--sky-g:rgba(56,189,248,0.09);
+  --violet:#8b5cf6;--violet-g:rgba(139,92,246,0.09);
+  --orange:#fb923c;--orange-g:rgba(251,146,60,0.09);
+  --wa:#25d366;--wa-g:rgba(37,211,102,0.10);
+  --r:10px;--r2:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:14px;}
+body{background:var(--bg0);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:44px 44px;opacity:0.18;pointer-events:none;z-index:0;}
+.shell{display:flex;min-height:100vh;position:relative;z-index:1;}
+
+/* SIDEBAR */
+.sidebar{width:244px;background:var(--bg1);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;overflow-y:auto;}
+.sb-logo{padding:26px 20px 20px;border-bottom:1px solid var(--border);}
+.logo-mark{display:flex;align-items:center;gap:11px;}
+.logo-ico{width:38px;height:38px;background:linear-gradient(135deg,var(--amber),var(--amber2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;box-shadow:0 4px 18px rgba(245,158,11,0.28);}
+.logo-nm{font-size:1.28rem;font-weight:800;color:var(--text);letter-spacing:-0.5px;}
+.logo-nm span{color:var(--amber);}
+.logo-tg{font-size:0.62rem;color:var(--text3);letter-spacing:2.5px;text-transform:uppercase;margin-top:2px;}
+.sb-nav{padding:18px 10px;flex:1;}
+.ng{margin-bottom:24px;}
+.ng-lbl{font-size:0.6rem;color:var(--text3);letter-spacing:2.5px;text-transform:uppercase;padding:0 10px;margin-bottom:7px;font-weight:500;}
+.ni-btn{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;border-radius:var(--r);background:none;border:none;color:var(--text2);cursor:pointer;font-family:'Syne',sans-serif;font-size:0.87rem;font-weight:500;text-align:left;transition:all 0.16s;}
+.ni-btn:hover{background:var(--bg2);color:var(--text);}
+.ni-btn.active{background:var(--amber-g);color:var(--amber);border:1px solid rgba(245,158,11,0.18);}
+.ni-btn .nico{font-size:0.95rem;width:18px;text-align:center;flex-shrink:0;}
+.nbdg{margin-left:auto;background:var(--amber);color:#000;font-size:0.62rem;font-weight:700;padding:1px 6px;border-radius:20px;min-width:20px;text-align:center;}
+.nbdg.red{background:var(--rose);color:#fff;}
+.nbdg.grn{background:var(--emerald2);color:#fff;}
+.nbdg.wa{background:var(--wa);color:#fff;}
+.sb-bot{padding:14px;border-top:1px solid var(--border);}
+.mw{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:13px;}
+.mw-lbl{font-size:0.6rem;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;}
+.mw-inp{width:100%;background:var(--bg0);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:7px 10px;font-family:'DM Mono',monospace;font-size:0.82rem;cursor:pointer;transition:border-color 0.16s;}
+.mw-inp:focus{outline:none;border-color:var(--amber);}
+.mw-all{width:100%;margin-top:6px;padding:5px;background:none;border:1px dashed var(--border2);color:var(--text3);border-radius:8px;cursor:pointer;font-family:'Syne',sans-serif;font-size:0.72rem;transition:all 0.16s;}
+.mw-all:hover{border-color:var(--amber);color:var(--amber);}
+
+/* MAIN */
+.main{margin-left:244px;flex:1;padding:30px;min-height:100vh;}
+.page{display:none;animation:pgIn 0.26s ease both;}
+.page.active{display:block;}
+@keyframes pgIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* PAGE HEADER */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:30px;flex-wrap:wrap;gap:12px;}
+.ph-title{font-size:1.85rem;font-weight:800;letter-spacing:-0.5px;line-height:1;}
+.ph-sub{font-size:0.8rem;color:var(--text3);margin-top:5px;}
+.ph-r{display:flex;gap:9px;align-items:center;flex-wrap:wrap;}
+
+/* KPI */
+.kgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:26px;}
+.kpi{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r2);padding:21px 19px;position:relative;overflow:hidden;transition:border-color .2s,transform .18s;cursor:default;}
+.kpi:hover{border-color:var(--border2);transform:translateY(-1px);}
+.kpi-glow{position:absolute;top:-28px;right:-28px;width:90px;height:90px;border-radius:50%;opacity:0.45;pointer-events:none;filter:blur(28px);}
+.kpi-bar{position:absolute;top:0;left:0;right:0;height:2px;}
+.kpi.amber .kpi-glow{background:var(--amber);}.kpi.amber .kpi-bar{background:linear-gradient(90deg,var(--amber),transparent);}
+.kpi.emerald .kpi-glow{background:var(--emerald);}.kpi.emerald .kpi-bar{background:linear-gradient(90deg,var(--emerald),transparent);}
+.kpi.rose .kpi-glow{background:var(--rose);}.kpi.rose .kpi-bar{background:linear-gradient(90deg,var(--rose),transparent);}
+.kpi.sky .kpi-glow{background:var(--sky);}.kpi.sky .kpi-bar{background:linear-gradient(90deg,var(--sky),transparent);}
+.kpi.violet .kpi-glow{background:var(--violet);}.kpi.violet .kpi-bar{background:linear-gradient(90deg,var(--violet),transparent);}
+.kpi.orange .kpi-glow{background:var(--orange);}.kpi.orange .kpi-bar{background:linear-gradient(90deg,var(--orange),transparent);}
+.kpi.wa-c .kpi-glow{background:var(--wa);}.kpi.wa-c .kpi-bar{background:linear-gradient(90deg,var(--wa),transparent);}
+.kpi-lbl{font-size:0.66rem;color:var(--text3);letter-spacing:2px;text-transform:uppercase;font-weight:500;margin-bottom:11px;}
+.kpi-val{font-family:'DM Mono',monospace;font-size:1.62rem;font-weight:500;}
+.kpi.amber .kpi-val{color:var(--amber);}.kpi.emerald .kpi-val{color:var(--emerald);}.kpi.rose .kpi-val{color:var(--rose);}.kpi.sky .kpi-val{color:var(--sky);}.kpi.violet .kpi-val{color:var(--violet);}.kpi.orange .kpi-val{color:var(--orange);}.kpi.wa-c .kpi-val{color:var(--wa);}
+.kpi-sub{font-size:0.7rem;color:var(--text3);margin-top:5px;}
+.kpi-ico{position:absolute;bottom:13px;right:15px;font-size:1.55rem;opacity:0.09;}
+
+/* PANELS */
+.panel{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:20px;}
+.panel-hd{padding:17px 21px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.panel-title{font-size:0.93rem;font-weight:700;}
+.panel-sub{font-size:0.72rem;color:var(--text3);margin-top:2px;}
+.panel-body{padding:21px;}
+.panel-body.np{padding:0;}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:19px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:19px;}
+.g23{display:grid;grid-template-columns:2fr 1fr;gap:19px;}
+.g12{display:grid;grid-template-columns:1fr 2fr;gap:19px;}
+
+/* TABLES */
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead th{padding:10px 15px;text-align:left;font-size:0.63rem;color:var(--text3);letter-spacing:2px;text-transform:uppercase;font-weight:500;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--bg0);}
+tbody td{padding:12px 15px;border-bottom:1px solid var(--border);font-size:0.86rem;vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr{transition:background .13s;}
+tbody tr:hover td{background:var(--bg2);}
+.mono{font-family:'DM Mono',monospace;}
+.tg{color:var(--emerald);}.tr{color:var(--rose);}.ta{color:var(--amber);}.ts{color:var(--sky);}.tv{color:var(--violet);}.to{color:var(--orange);}.tm{color:var(--text3);}.twa{color:var(--wa);}
+
+/* BADGES */
+.b{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:0.68rem;font-weight:600;letter-spacing:0.4px;white-space:nowrap;}
+.ba{background:rgba(245,158,11,.14);color:var(--amber);border:1px solid rgba(245,158,11,.22);}
+.be{background:rgba(16,185,129,.12);color:var(--emerald);border:1px solid rgba(16,185,129,.22);}
+.br{background:rgba(244,63,94,.12);color:var(--rose);border:1px solid rgba(244,63,94,.18);}
+.bs{background:rgba(56,189,248,.12);color:var(--sky);border:1px solid rgba(56,189,248,.18);}
+.bv{background:rgba(139,92,246,.12);color:var(--violet);border:1px solid rgba(139,92,246,.18);}
+.bn{background:var(--bg3);color:var(--text2);border:1px solid var(--border2);}
+.bwa{background:rgba(37,211,102,.12);color:var(--wa);border:1px solid rgba(37,211,102,.22);}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 19px;border-radius:var(--r);font-family:'Syne',sans-serif;font-size:0.84rem;font-weight:600;cursor:pointer;border:none;transition:all .17s;white-space:nowrap;}
+.btn-amber{background:var(--amber);color:#000;}.btn-amber:hover{background:var(--amber2);transform:translateY(-1px);box-shadow:0 4px 18px rgba(245,158,11,.28);}
+.btn-emerald{background:var(--emerald2);color:#fff;}.btn-emerald:hover{background:var(--emerald);color:#000;}
+.btn-sky{background:rgba(56,189,248,.15);color:var(--sky);border:1px solid rgba(56,189,248,.25);}.btn-sky:hover{background:rgba(56,189,248,.25);}
+.btn-ghost{background:var(--bg2);color:var(--text2);border:1px solid var(--border2);}.btn-ghost:hover{background:var(--bg3);color:var(--text);}
+.btn-wa{background:var(--wa);color:#fff;}.btn-wa:hover{background:#1ebe5d;transform:translateY(-1px);box-shadow:0 4px 18px rgba(37,211,102,.3);}
+.btn-wa-ghost{background:rgba(37,211,102,.1);color:var(--wa);border:1px solid rgba(37,211,102,.25);}.btn-wa-ghost:hover{background:rgba(37,211,102,.2);}
+.btn-print{background:rgba(139,92,246,.12);color:var(--violet);border:1px solid rgba(139,92,246,.25);}.btn-print:hover{background:rgba(139,92,246,.22);}
+.btn-sm{padding:7px 14px;font-size:0.78rem;}.btn-xs{padding:4px 9px;font-size:0.7rem;}
+.btn-del{background:transparent;color:var(--rose);border:1px solid transparent;padding:4px 9px;font-size:0.74rem;cursor:pointer;border-radius:6px;font-family:'Syne',sans-serif;transition:all .15s;}.btn-del:hover{background:var(--rose-g);border-color:rgba(244,63,94,.28);}
+.btn-pay{background:rgba(16,185,129,.12);color:var(--emerald);border:1px solid rgba(16,185,129,.25);padding:5px 11px;font-size:0.75rem;font-family:'Syne',sans-serif;font-weight:600;border-radius:8px;cursor:pointer;transition:all .15s;}.btn-pay:hover{background:rgba(16,185,129,.22);}
+.btn-full{width:100%;}
+
+/* FORMS */
+.fg{display:flex;flex-direction:column;gap:6px;}.fg.full{grid-column:span 2;}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
+.flbl{font-size:0.66rem;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;}
+.finp,.fsel{background:var(--bg0);border:1px solid var(--border2);color:var(--text);border-radius:var(--r);padding:11px 13px;font-family:'Syne',sans-serif;font-size:0.88rem;width:100%;transition:all .16s;}
+.finp:focus,.fsel:focus{outline:none;border-color:var(--amber);background:var(--bg1);box-shadow:0 0 0 3px rgba(245,158,11,.07);}
+.finp::placeholder{color:var(--text3);}.fsel option{background:var(--bg1);}
+.finp.mono{font-family:'DM Mono',monospace;}
+.fpre{position:relative;}.fpre-s{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--text3);font-family:'DM Mono',monospace;pointer-events:none;}.fpre .finp{padding-left:28px;}
+.ftotal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:11px 13px;font-family:'DM Mono',monospace;font-size:1.1rem;font-weight:500;color:var(--amber);}
+.ag-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;}
+.ag-chip{padding:3px 10px;background:var(--bg2);border:1px solid var(--border2);border-radius:20px;font-size:0.7rem;color:var(--text2);cursor:pointer;transition:all .16s;}.ag-chip:hover{border-color:var(--amber);color:var(--amber);}
+
+/* PROGRESS */
+.plist{display:flex;flex-direction:column;gap:14px;}
+.pi-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.pi-nm{font-size:0.84rem;font-weight:600;}.pi-val{font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--amber);}
+.pi-track{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.pi-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--amber),#fbbf24);transition:width .7s cubic-bezier(0.34,1.56,0.64,1);}
+
+/* P&L */
+.pl-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);}
+.pl-row:last-child{border-bottom:none;}
+.pl-row.tot{padding-top:15px;}.pl-row.tot span:first-child{font-weight:700;font-size:.88rem;}
+.pl-v{font-family:'DM Mono',monospace;font-size:.86rem;}
+
+/* SUMMARY RING */
+.sc-wrap{display:flex;flex-direction:column;align-items:center;padding:18px 0 12px;}
+.sc-ring{width:126px;height:126px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2.5px solid var(--border2);margin-bottom:10px;}
+.sc-ring.pos{border-color:var(--emerald);box-shadow:0 0 28px rgba(16,185,129,.1);}
+.sc-ring.neg{border-color:var(--rose);box-shadow:0 0 28px rgba(244,63,94,.1);}
+.sc-lbl{font-size:0.6rem;color:var(--text3);letter-spacing:2px;text-transform:uppercase;}
+.sc-val{font-family:'DM Mono',monospace;font-size:1.1rem;font-weight:500;margin-top:3px;}
+
+/* LEDGER CARD */
+.led-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;transition:border-color .18s;}
+.led-card:hover{border-color:var(--border2);}
+.led-hd{padding:16px 19px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;}
+.led-name{font-size:1rem;font-weight:700;}
+.led-contact{font-size:0.72rem;color:var(--text3);margin-top:2px;}
+.led-body{padding:16px 19px;}
+.led-stat{display:flex;justify-content:space-between;margin-bottom:10px;}
+.led-stat-item{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.ls-lbl{font-size:0.62rem;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;}
+.ls-val{font-family:'DM Mono',monospace;font-size:1rem;font-weight:500;}
+.ls-val.purchases{color:var(--amber);}.ls-val.paid{color:var(--emerald);}.ls-val.balance{color:var(--rose);}.ls-val.zero{color:var(--emerald);}
+.led-prog{margin:12px 0 8px;}
+.led-prog-lbl{display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text3);margin-bottom:5px;}
+.led-prog-track{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;}
+.led-prog-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--emerald),#6ee7b7);transition:width .7s cubic-bezier(0.34,1.56,0.64,1);}
+.led-prog-fill.overpaid{background:linear-gradient(90deg,var(--violet),#c4b5fd);}
+.led-foot{padding:11px 19px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.led-status{font-size:0.72rem;font-weight:600;}
+.led-status.clear{color:var(--emerald);}.led-status.partial{color:var(--amber);}.led-status.unpaid{color:var(--rose);}.led-status.over{color:var(--violet);}
+.led-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.led-actions{display:flex;gap:6px;flex-wrap:wrap;}
+
+/* TXN LIST */
+.txn-list{display:flex;flex-direction:column;}
+.txn{display:flex;align-items:center;gap:13px;padding:12px 0;border-bottom:1px solid var(--border);}
+.txn:last-child{border-bottom:none;}
+.txn-ico{width:35px;height:35px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:0.88rem;flex-shrink:0;}
+.txn-ico.inc{background:var(--emerald-g);border:1px solid rgba(16,185,129,.18);}
+.txn-ico.pur{background:var(--rose-g);border:1px solid rgba(244,63,94,.14);}
+.txn-ico.pay{background:var(--sky-g);border:1px solid rgba(56,189,248,.18);}
+.txn-body{flex:1;min-width:0;}
+.txn-nm{font-size:0.85rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.txn-meta{font-size:0.7rem;color:var(--text3);margin-top:2px;}
+.txn-amt{font-family:'DM Mono',monospace;font-size:0.88rem;font-weight:500;white-space:nowrap;}
+.txn-amt.inc{color:var(--emerald);}.txn-amt.pur{color:var(--rose);}.txn-amt.pay{color:var(--sky);}
+
+/* MODALS */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(5px);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-bg.open{display:flex;}
+.modal-box{background:var(--bg1);border:1px solid var(--border2);border-radius:var(--r2);padding:28px;width:460px;max-width:96vw;box-shadow:0 28px 80px rgba(0,0,0,.65);animation:pgIn .22s ease;max-height:90vh;overflow-y:auto;}
+.modal-title{font-size:1.1rem;font-weight:700;margin-bottom:4px;}
+.modal-sub{font-size:0.78rem;color:var(--text3);margin-bottom:22px;}
+
+/* PAYMENT MODAL */
+.pm-balance{background:var(--rose-g);border:1px solid rgba(244,63,94,.2);border-radius:var(--r);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.pm-bal-lbl{font-size:0.7rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;}
+.pm-bal-val{font-family:'DM Mono',monospace;font-size:1.15rem;color:var(--rose);font-weight:500;}
+
+/* WHATSAPP PAGE */
+.wa-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:20px;transition:border-color .18s;}
+.wa-card:hover{border-color:var(--border2);}
+.wa-card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;}
+.wa-agency-name{font-size:1rem;font-weight:700;}
+.wa-agency-phone{font-size:0.75rem;color:var(--text3);margin-top:3px;}
+.wa-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;}
+.wa-stat{background:var(--bg3);border-radius:8px;padding:10px;text-align:center;}
+.wa-stat-lbl{font-size:0.6rem;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;}
+.wa-stat-val{font-family:'DM Mono',monospace;font-size:0.95rem;font-weight:500;}
+.wa-msg-preview{background:var(--bg0);border:1px solid var(--border);border-radius:var(--r);padding:14px;font-size:0.8rem;color:var(--text2);line-height:1.7;margin-bottom:14px;font-family:'DM Mono',monospace;white-space:pre-wrap;word-break:break-word;}
+.wa-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.phone-edit-row{display:flex;gap:8px;align-items:center;margin-bottom:14px;}
+.phone-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:0.7rem;}
+.phone-badge.has-phone{background:rgba(37,211,102,.1);color:var(--wa);border:1px solid rgba(37,211,102,.22);}
+.phone-badge.no-phone{background:var(--rose-g);color:var(--rose);border:1px solid rgba(244,63,94,.2);}
+
+/* INVOICE MODAL */
+.inv-modal-box{width:700px;max-width:96vw;}
+
+/* INVOICE PRINT STYLES */
+#invoice-print-area{display:none;}
+.inv-wrap{background:#fff;color:#111;font-family:'Syne',sans-serif;padding:48px;max-width:800px;margin:0 auto;}
+.inv-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:40px;padding-bottom:24px;border-bottom:2px solid #111;}
+.inv-brand{font-size:1.8rem;font-weight:800;color:#111;letter-spacing:-0.5px;}
+.inv-brand span{color:#d97706;}
+.inv-brand-sub{font-size:0.72rem;color:#888;letter-spacing:2px;text-transform:uppercase;margin-top:3px;}
+.inv-meta{text-align:right;}
+.inv-title{font-size:1.4rem;font-weight:800;letter-spacing:2px;color:#111;margin-bottom:6px;}
+.inv-num{font-family:'DM Mono',monospace;font-size:0.85rem;color:#888;}
+.inv-date{font-family:'DM Mono',monospace;font-size:0.82rem;color:#888;margin-top:3px;}
+.inv-parties{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-bottom:36px;}
+.inv-party-lbl{font-size:0.62rem;letter-spacing:2.5px;text-transform:uppercase;color:#999;margin-bottom:8px;}
+.inv-party-name{font-size:1.1rem;font-weight:700;color:#111;}
+.inv-party-sub{font-size:0.82rem;color:#777;margin-top:3px;line-height:1.6;}
+.inv-table{width:100%;border-collapse:collapse;margin-bottom:32px;}
+.inv-table thead th{padding:10px 14px;text-align:left;font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;background:#f5f5f5;color:#666;border-bottom:2px solid #e0e0e0;}
+.inv-table thead th:last-child{text-align:right;}
+.inv-table tbody td{padding:12px 14px;border-bottom:1px solid #f0f0f0;font-size:0.9rem;color:#222;}
+.inv-table tbody td:last-child{text-align:right;font-family:'DM Mono',monospace;font-weight:600;}
+.inv-totals{display:flex;flex-direction:column;align-items:flex-end;gap:6px;margin-bottom:40px;}
+.inv-total-row{display:flex;gap:48px;justify-content:flex-end;font-size:0.88rem;color:#555;}
+.inv-total-row.grand{font-size:1.05rem;font-weight:700;color:#111;padding-top:10px;border-top:2px solid #111;margin-top:4px;}
+.inv-total-val{font-family:'DM Mono',monospace;min-width:120px;text-align:right;}
+.inv-footer{text-align:center;padding-top:28px;border-top:1px solid #e0e0e0;font-size:0.78rem;color:#aaa;}
+.inv-status-stamp{position:absolute;top:160px;right:48px;font-size:2rem;font-weight:900;letter-spacing:4px;border:4px solid;border-radius:8px;padding:8px 20px;opacity:0.15;transform:rotate(-15deg);pointer-events:none;}
+.inv-status-stamp.paid{color:#059669;border-color:#059669;}
+.inv-status-stamp.unpaid{color:#e11d48;border-color:#e11d48;}
+.inv-status-stamp.partial{color:#d97706;border-color:#d97706;}
+.inv-notes-section{background:#fafafa;border-radius:8px;padding:16px;margin-bottom:32px;}
+.inv-notes-lbl{font-size:0.62rem;letter-spacing:2px;text-transform:uppercase;color:#999;margin-bottom:6px;}
+.inv-notes-txt{font-size:0.85rem;color:#555;line-height:1.6;}
+
+/* ALERT */
+.alert-ok{background:var(--emerald-g);border:1px solid rgba(16,185,129,.28);color:var(--emerald);padding:11px 15px;border-radius:var(--r);margin-bottom:16px;font-size:0.83rem;display:none;}
+
+/* SEARCH */
+.sw{position:relative;}.sw::before{content:'⌕';position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:1.05rem;pointer-events:none;z-index:1;}
+.si{padding-left:34px!important;}
+
+/* EMPTY */
+.empty{text-align:center;padding:50px 20px;color:var(--text3);}
+.eico{font-size:2.6rem;opacity:0.18;margin-bottom:13px;}
+.emsg{font-size:0.86rem;}
+
+/* TOAST */
+#toast{position:fixed;bottom:26px;right:26px;z-index:9999;background:var(--bg2);border:1px solid var(--border2);color:var(--text);padding:12px 19px;border-radius:var(--r2);font-size:0.84rem;font-weight:500;box-shadow:0 12px 40px rgba(0,0,0,.5);transform:translateY(80px);opacity:0;transition:all .32s cubic-bezier(0.34,1.56,0.64,1);display:flex;align-items:center;gap:9px;min-width:210px;pointer-events:none;}
+#toast.show{transform:translateY(0);opacity:1;}
+.tdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.tdot.g{background:var(--emerald);}.tdot.a{background:var(--amber);}.tdot.r{background:var(--rose);}.tdot.wa{background:var(--wa);}
+
+::-webkit-scrollbar{width:5px;height:5px;}::-webkit-scrollbar-track{background:var(--bg0);}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+.stagger>*{animation:pgIn .3s ease both;}
+.stagger>*:nth-child(1){animation-delay:.03s;}.stagger>*:nth-child(2){animation-delay:.07s;}.stagger>*:nth-child(3){animation-delay:.11s;}.stagger>*:nth-child(4){animation-delay:.15s;}
+
+/* PRINT STYLES */
+@media print{
+  body>*:not(#invoice-print-area){display:none!important;}
+  #invoice-print-area{display:block!important;position:fixed;inset:0;background:#fff;z-index:99999;overflow:auto;}
+  .inv-wrap{box-shadow:none;}
+  @page{margin:0;}
+}
+
+@media(max-width:1100px){.kgrid{grid-template-columns:1fr 1fr;}.led-grid{grid-template-columns:1fr 1fr;}.wa-grid{grid-template-columns:1fr;}}
+@media(max-width:860px){.g2,.g23,.g12{grid-template-columns:1fr;}.led-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="logo-mark">
+      <div class="logo-ico">📦</div>
+      <div><div class="logo-nm">Trade<span>Flow</span></div><div class="logo-tg">Business Manager</div></div>
+    </div>
+  </div>
+  <nav class="sb-nav">
+    <div class="ng">
+      <div class="ng-lbl">Overview</div>
+      <button class="ni-btn active" onclick="nav('dashboard',this)"><span class="nico">◈</span>Dashboard</button>
+    </div>
+    <div class="ng">
+      <div class="ng-lbl">Transactions</div>
+      <button class="ni-btn" onclick="nav('purchases',this)"><span class="nico">🛒</span>Purchases<span class="nbdg" id="nb-pur">0</span></button>
+      <button class="ni-btn" onclick="nav('income',this)"><span class="nico">💰</span>Income<span class="nbdg grn" id="nb-inc">0</span></button>
+      <button class="ni-btn" onclick="nav('payments',this)"><span class="nico">💳</span>Agency Payments<span class="nbdg" id="nb-pay">0</span></button>
+    </div>
+    <div class="ng">
+      <div class="ng-lbl">Add New</div>
+      <button class="ni-btn" onclick="nav('add-purchase',this)"><span class="nico">➕</span>Add Purchase</button>
+      <button class="ni-btn" onclick="nav('add-income',this)"><span class="nico">➕</span>Add Income</button>
+    </div>
+    <div class="ng">
+      <div class="ng-lbl">Tools</div>
+      <button class="ni-btn" onclick="nav('whatsapp',this)"><span class="nico">💬</span>WhatsApp Reminders<span class="nbdg wa" id="nb-wa">!</span></button>
+      <button class="ni-btn" onclick="nav('invoices',this)"><span class="nico">🧾</span>Invoices</button>
+      <button class="ni-btn" onclick="nav('ledger',this)"><span class="nico">📒</span>Agency Ledger</button>
+      <button class="ni-btn" onclick="nav('agencies',this)"><span class="nico">🏢</span>Manage Agencies</button>
+    </div>
+  </nav>
+  <div class="sb-bot">
+    <div class="mw">
+      <div class="mw-lbl">Filter Month</div>
+      <input class="mw-inp" type="month" id="gMonth" onchange="setMonth(this.value)">
+      <button class="mw-all" onclick="setMonth('')">Show All Time</button>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- DASHBOARD -->
+<div class="page active" id="pg-dashboard">
+  <div class="ph">
+    <div><div class="ph-title">Dashboard</div><div class="ph-sub" id="d-period">All time overview</div></div>
+    <div class="ph-r"><button class="btn btn-ghost btn-sm" onclick="expAll()">⬇ Export CSV</button></div>
+  </div>
+  <div class="kgrid stagger">
+    <div class="kpi emerald"><div class="kpi-bar"></div><div class="kpi-glow"></div><div class="kpi-ico">💰</div>
+      <div class="kpi-lbl">Total Income</div><div class="kpi-val" id="d-inc">₹0</div><div class="kpi-sub" id="d-inc-s">0 entries</div></div>
+    <div class="kpi rose"><div class="kpi-bar"></div><div class="kpi-glow"></div><div class="kpi-ico">🛒</div>
+      <div class="kpi-lbl">Total Purchases</div><div class="kpi-val" id="d-pur">₹0</div><div class="kpi-sub" id="d-pur-s">0 entries</div></div>
+    <div class="kpi sky"><div class="kpi-bar"></div><div class="kpi-glow"></div><div class="kpi-ico">💳</div>
+      <div class="kpi-lbl">Paid to Agencies</div><div class="kpi-val" id="d-paid">₹0</div><div class="kpi-sub" id="d-paid-s">0 payments</div></div>
+    <div class="kpi orange"><div class="kpi-bar"></div><div class="kpi-glow"></div><div class="kpi-ico">⏳</div>
+      <div class="kpi-lbl">Balance Due</div><div class="kpi-val" id="d-bal">₹0</div><div class="kpi-sub" id="d-bal-s">across agencies</div></div>
+  </div>
+  <div class="kgrid stagger">
+    <div class="kpi amber"><div class="kpi-bar"></div><div class="kpi-glow"></div>
+      <div class="kpi-lbl">Net Profit</div><div class="kpi-val" id="d-profit">₹0</div><div class="kpi-sub" id="d-margin">0% margin</div></div>
+    <div class="kpi violet"><div class="kpi-bar"></div><div class="kpi-glow"></div>
+      <div class="kpi-lbl">Active Agencies</div><div class="kpi-val" id="d-ags">0</div><div class="kpi-sub" id="d-ag-sub">suppliers</div></div>
+    <div class="kpi emerald"><div class="kpi-bar"></div><div class="kpi-glow"></div>
+      <div class="kpi-lbl">Agencies Cleared</div><div class="kpi-val" id="d-cleared">0</div><div class="kpi-sub">fully paid</div></div>
+    <div class="kpi wa-c"><div class="kpi-bar"></div><div class="kpi-glow"></div>
+      <div class="kpi-lbl">Pending Reminders</div><div class="kpi-val" id="d-pending">0</div><div class="kpi-sub">agencies with balance</div></div>
+  </div>
+  <div class="g23">
+    <div class="panel">
+      <div class="panel-hd">
+        <div><div class="panel-title">6-Month Overview</div><div class="panel-sub">Income · Purchases · Payments</div></div>
+        <div style="display:flex;gap:14px;">
+          <span style="display:flex;align-items:center;gap:5px;font-size:0.7rem;color:var(--text3);"><span style="width:9px;height:9px;background:var(--emerald);border-radius:2px;display:inline-block"></span>Income</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:0.7rem;color:var(--text3);"><span style="width:9px;height:9px;background:var(--rose);border-radius:2px;display:inline-block"></span>Purchases</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:0.7rem;color:var(--text3);"><span style="width:9px;height:9px;background:var(--sky);border-radius:2px;display:inline-block"></span>Paid</span>
+        </div>
+      </div>
+      <div class="panel-body"><canvas id="barChart" height="180"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">P&L Summary</div></div>
+      <div class="panel-body">
+        <div class="sc-wrap">
+          <div class="sc-ring pos" id="sc-ring"><div class="sc-lbl">NET</div><div class="sc-val" id="sc-val">₹0</div></div>
+          <div style="font-size:.72rem;color:var(--text3);" id="sc-tag">—</div>
+        </div>
+        <div>
+          <div class="pl-row"><span style="color:var(--text3)">↑ Income</span><span class="pl-v tg" id="pl-inc">₹0</span></div>
+          <div class="pl-row"><span style="color:var(--text3)">↓ Purchases</span><span class="pl-v tr" id="pl-pur">₹0</span></div>
+          <div class="pl-row"><span style="color:var(--text3)">💳 Paid to Agencies</span><span class="pl-v ts" id="pl-paid">₹0</span></div>
+          <div class="pl-row"><span style="color:var(--text3)">⏳ Balance Due</span><span class="pl-v to" id="pl-bal">₹0</span></div>
+          <div class="pl-row tot"><span>Net Profit / Loss</span><span class="pl-v" id="pl-net">₹0</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="panel">
+      <div class="panel-hd">
+        <div><div class="panel-title">Agency Balance</div></div>
+        <button class="btn btn-ghost btn-xs" onclick="nav('ledger',null)">Full Ledger →</button>
+      </div>
+      <div class="panel-body"><div class="plist" id="ag-bal-prog"></div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">Recent Activity</div></div>
+      <div class="panel-body np" style="padding:0 21px;"><div class="txn-list" id="dash-txn"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PURCHASES -->
+<div class="page" id="pg-purchases">
+  <div class="ph">
+    <div><div class="ph-title">Purchases</div><div class="ph-sub">All product purchases from agencies</div></div>
+    <div class="ph-r">
+      <div class="sw"><input class="finp si" type="text" id="p-search" placeholder="Search..." oninput="renderPur()" style="width:190px;padding:8px 13px 8px 34px;font-size:0.83rem;"></div>
+      <select class="finp" id="p-ag-filter" onchange="renderPur()" style="width:150px;padding:8px 12px;font-size:0.83rem;"><option value="">All Agencies</option></select>
+      <button class="btn btn-amber btn-sm" onclick="nav('add-purchase',null)">+ Add</button>
+      <button class="btn btn-ghost btn-sm" onclick="expPur()">⬇ CSV</button>
+    </div>
+  </div>
+  <div class="kgrid stagger">
+    <div class="kpi amber"><div class="kpi-bar"></div><div class="kpi-lbl">Total Spend</div><div class="kpi-val" id="pk-total">₹0</div></div>
+    <div class="kpi sky"><div class="kpi-bar"></div><div class="kpi-lbl">Transactions</div><div class="kpi-val" id="pk-count">0</div></div>
+    <div class="kpi rose"><div class="kpi-bar"></div><div class="kpi-lbl">Avg Purchase</div><div class="kpi-val" id="pk-avg">₹0</div></div>
+    <div class="kpi violet"><div class="kpi-bar"></div><div class="kpi-lbl">Agencies</div><div class="kpi-val" id="pk-ags">0</div></div>
+  </div>
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">Purchase History <span class="b ba" id="p-bdg" style="margin-left:8px;">0</span></div></div>
+    <div class="tw panel-body np">
+      <table>
+        <thead><tr><th>Date</th><th>Product</th><th>Agency</th><th>Category</th><th>Qty</th><th>Unit ₹</th><th>Total</th><th>Notes</th><th>Invoice</th><th></th></tr></thead>
+        <tbody id="p-tbody"></tbody>
+      </table>
+      <div id="p-empty" class="empty" style="display:none;"><div class="eico">🛒</div><div class="emsg">No purchases found.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- INCOME -->
+<div class="page" id="pg-income">
+  <div class="ph">
+    <div><div class="ph-title">Income</div><div class="ph-sub">All revenue and income records</div></div>
+    <div class="ph-r">
+      <div class="sw"><input class="finp si" type="text" id="i-search" placeholder="Search..." oninput="renderInc()" style="width:190px;padding:8px 13px 8px 34px;font-size:0.83rem;"></div>
+      <button class="btn btn-emerald btn-sm" onclick="nav('add-income',null)">+ Add</button>
+      <button class="btn btn-ghost btn-sm" onclick="expInc()">⬇ CSV</button>
+    </div>
+  </div>
+  <div class="kgrid stagger">
+    <div class="kpi emerald"><div class="kpi-bar"></div><div class="kpi-lbl">Total Income</div><div class="kpi-val" id="ik-total">₹0</div></div>
+    <div class="kpi sky"><div class="kpi-bar"></div><div class="kpi-lbl">Entries</div><div class="kpi-val" id="ik-count">0</div></div>
+    <div class="kpi amber"><div class="kpi-bar"></div><div class="kpi-lbl">Average Entry</div><div class="kpi-val" id="ik-avg">₹0</div></div>
+    <div class="kpi rose"><div class="kpi-bar"></div><div class="kpi-lbl">This Month</div><div class="kpi-val" id="ik-month">₹0</div></div>
+  </div>
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">Income History <span class="b be" id="i-bdg" style="margin-left:8px;">0</span></div></div>
+    <div class="tw panel-body np">
+      <table>
+        <thead><tr><th>Date</th><th>Source / Description</th><th>Category</th><th>Notes</th><th>Amount</th><th></th></tr></thead>
+        <tbody id="i-tbody"></tbody>
+      </table>
+      <div id="i-empty" class="empty" style="display:none;"><div class="eico">💰</div><div class="emsg">No income records found.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENTS -->
+<div class="page" id="pg-payments">
+  <div class="ph">
+    <div><div class="ph-title">Agency Payments</div><div class="ph-sub">Every payment made to suppliers</div></div>
+    <div class="ph-r">
+      <select class="finp" id="pay-ag-filter" onchange="renderPay()" style="width:170px;padding:8px 12px;font-size:0.83rem;"><option value="">All Agencies</option></select>
+      <button class="btn btn-sky btn-sm" onclick="openPayModal('')">+ Record Payment</button>
+      <button class="btn btn-ghost btn-sm" onclick="expPay()">⬇ CSV</button>
+    </div>
+  </div>
+  <div class="kgrid stagger">
+    <div class="kpi sky"><div class="kpi-bar"></div><div class="kpi-lbl">Total Paid Out</div><div class="kpi-val" id="payk-total">₹0</div></div>
+    <div class="kpi amber"><div class="kpi-bar"></div><div class="kpi-lbl">Payments Made</div><div class="kpi-val" id="payk-count">0</div></div>
+    <div class="kpi rose"><div class="kpi-bar"></div><div class="kpi-lbl">Total Outstanding</div><div class="kpi-val" id="payk-bal">₹0</div></div>
+    <div class="kpi emerald"><div class="kpi-bar"></div><div class="kpi-lbl">Agencies Cleared</div><div class="kpi-val" id="payk-clear">0</div></div>
+  </div>
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">Payment History <span class="b bs" id="pay-bdg" style="margin-left:8px;">0</span></div></div>
+    <div class="tw panel-body np">
+      <table>
+        <thead><tr><th>Date</th><th>Agency</th><th>Mode</th><th>Reference</th><th>Notes</th><th>Amount Paid</th><th></th></tr></thead>
+        <tbody id="pay-tbody"></tbody>
+      </table>
+      <div id="pay-empty" class="empty" style="display:none;"><div class="eico">💳</div><div class="emsg">No payments recorded yet.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- WHATSAPP REMINDERS -->
+<div class="page" id="pg-whatsapp">
+  <div class="ph">
+    <div><div class="ph-title">WhatsApp Reminders</div><div class="ph-sub">Send instant payment reminders to agencies with outstanding balance</div></div>
+    <div class="ph-r">
+      <button class="btn btn-wa btn-sm" onclick="sendAllWA()">📤 Send All Reminders</button>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-bottom:20px;">
+    <div class="panel-hd"><div class="panel-title">⚙ Message Template</div><div class="panel-sub">Customise the reminder message sent to all agencies</div></div>
+    <div class="panel-body">
+      <div class="fgrid">
+        <div class="fg"><label class="flbl">Your Business Name</label><input class="finp" type="text" id="wa-biz-name" placeholder="e.g. Sri Ram Traders" oninput="saveSettings()"></div>
+        <div class="fg"><label class="flbl">Your Name</label><input class="finp" type="text" id="wa-owner-name" placeholder="e.g. Ramu" oninput="saveSettings()"></div>
+        <div class="fg full"><label class="flbl">Message Template</label>
+          <textarea class="finp" id="wa-template" rows="4" style="resize:vertical;line-height:1.6;" oninput="saveSettings()">Hello {AGENCY_NAME} 🙏
+
+This is a friendly payment reminder from *{BIZ_NAME}*.
+
+📦 Total Purchased: *{TOTAL_PURCHASED}*
+💳 Amount Paid: *{AMOUNT_PAID}*
+⏳ *Balance Due: {BALANCE}*
+
+Kindly arrange the payment at your earliest convenience.
+
+Thank you!
+{OWNER_NAME}</textarea>
+        </div>
+        <div class="fg full"><label class="flbl">Preview (for first agency with balance)</label>
+          <div class="wa-msg-preview" id="wa-preview">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="kgrid stagger" style="grid-template-columns:repeat(3,1fr);">
+    <div class="kpi wa-c"><div class="kpi-bar"></div><div class="kpi-lbl">Agencies with Balance</div><div class="kpi-val" id="wak-pending">0</div></div>
+    <div class="kpi rose"><div class="kpi-bar"></div><div class="kpi-lbl">Total Outstanding</div><div class="kpi-val" id="wak-total">₹0</div></div>
+    <div class="kpi emerald"><div class="kpi-bar"></div><div class="kpi-lbl">Agencies Cleared</div><div class="kpi-val" id="wak-cleared">0</div></div>
+  </div>
+
+  <div id="wa-cards-grid" class="wa-grid"></div>
+  <div id="wa-empty" class="empty" style="display:none;"><div class="eico">🎉</div><div class="emsg">All agencies are fully paid! No reminders needed.</div></div>
+</div>
+
+<!-- INVOICES -->
+<div class="page" id="pg-invoices">
+  <div class="ph">
+    <div><div class="ph-title">Invoices</div><div class="ph-sub">Generate and print professional invoices for your purchases</div></div>
+    <div class="ph-r">
+      <div class="sw"><input class="finp si" type="text" id="inv-search" placeholder="Search purchases..." oninput="renderInvoices()" style="width:200px;padding:8px 13px 8px 34px;font-size:0.83rem;"></div>
+      <select class="finp" id="inv-ag-filter" onchange="renderInvoices()" style="width:160px;padding:8px 12px;font-size:0.83rem;"><option value="">All Agencies</option></select>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-bottom:20px;">
+    <div class="panel-hd"><div class="panel-title">🏷 Your Business Details (for invoice header)</div></div>
+    <div class="panel-body">
+      <div class="fgrid">
+        <div class="fg"><label class="flbl">Business Name</label><input class="finp" type="text" id="inv-biz-name" placeholder="Sri Ram Traders" oninput="saveSettings()"></div>
+        <div class="fg"><label class="flbl">Owner Name</label><input class="finp" type="text" id="inv-owner" placeholder="Your name" oninput="saveSettings()"></div>
+        <div class="fg"><label class="flbl">Address</label><input class="finp" type="text" id="inv-address" placeholder="Your city, state" oninput="saveSettings()"></div>
+        <div class="fg"><label class="flbl">Phone / GST No.</label><input class="finp" type="text" id="inv-phone" placeholder="+91 99999 99999" oninput="saveSettings()"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-hd"><div class="panel-title">Select Purchase to Generate Invoice</div><div class="panel-sub">Click 🖨 to print invoice for any purchase</div></div>
+    <div class="tw panel-body np">
+      <table>
+        <thead><tr><th>Date</th><th>Product</th><th>Agency</th><th>Qty</th><th>Total</th><th>Balance Status</th><th>Invoice</th></tr></thead>
+        <tbody id="inv-tbody"></tbody>
+      </table>
+      <div id="inv-empty" class="empty" style="display:none;"><div class="eico">🧾</div><div class="emsg">No purchases found.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD PURCHASE -->
+<div class="page" id="pg-add-purchase">
+  <div class="ph">
+    <div><div class="ph-title">Add Purchase</div><div class="ph-sub">Record a new product purchase</div></div>
+    <div class="ph-r"><button class="btn btn-ghost btn-sm" onclick="nav('purchases',null)">← Back</button></div>
+  </div>
+  <div style="max-width:680px;">
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">Purchase Details</div></div>
+      <div class="panel-body">
+        <div class="alert-ok" id="ap-ok">✅ Purchase saved!</div>
+        <div class="fgrid">
+          <div class="fg"><label class="flbl">Product Name *</label><input class="finp" type="text" id="ap-product" placeholder="e.g. Cotton fabric, Rice bags..."></div>
+          <div class="fg"><label class="flbl">Agency / Supplier *</label>
+            <input class="finp" type="text" id="ap-agency" placeholder="Type or pick below" list="ap-ag-dl">
+            <datalist id="ap-ag-dl"></datalist>
+            <div class="ag-chips" id="ap-chips"></div>
+          </div>
+          <div class="fg"><label class="flbl">Date *</label><input class="finp mono" type="date" id="ap-date"></div>
+          <div class="fg"><label class="flbl">Category</label>
+            <select class="fsel" id="ap-cat"><option>General</option><option>Raw Materials</option><option>Finished Goods</option><option>Packaging</option><option>Equipment</option><option>Electronics</option><option>Textiles</option><option>Food & Beverages</option><option>Consumables</option><option>Chemicals</option><option>Machinery</option><option>Other</option></select>
+          </div>
+          <div class="fg"><label class="flbl">Quantity</label><input class="finp mono" type="number" id="ap-qty" value="1" min="0.01" step="0.01" oninput="calcAP()"></div>
+          <div class="fg"><label class="flbl">Unit Price (₹) *</label><div class="fpre"><span class="fpre-s">₹</span><input class="finp" type="number" id="ap-price" placeholder="0.00" oninput="calcAP()"></div></div>
+          <div class="fg full"><label class="flbl">Total Amount</label><div class="ftotal" id="ap-total">₹ 0.00</div></div>
+          <div class="fg full"><label class="flbl">Notes (optional)</label><input class="finp" type="text" id="ap-notes" placeholder="Invoice no., batch, remarks..."></div>
+        </div>
+        <div style="display:flex;gap:11px;margin-top:20px;">
+          <button class="btn btn-amber" onclick="saveP()">💾 Save Purchase</button>
+          <button class="btn btn-ghost" onclick="clearAP()">Clear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD INCOME -->
+<div class="page" id="pg-add-income">
+  <div class="ph">
+    <div><div class="ph-title">Add Income</div><div class="ph-sub">Record a new revenue entry</div></div>
+    <div class="ph-r"><button class="btn btn-ghost btn-sm" onclick="nav('income',null)">← Back</button></div>
+  </div>
+  <div style="max-width:680px;">
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">Income Details</div></div>
+      <div class="panel-body">
+        <div class="alert-ok" id="ai-ok">✅ Income saved!</div>
+        <div class="fgrid">
+          <div class="fg"><label class="flbl">Source / Description *</label><input class="finp" type="text" id="ai-source" placeholder="e.g. Product sales..."></div>
+          <div class="fg"><label class="flbl">Date *</label><input class="finp mono" type="date" id="ai-date"></div>
+          <div class="fg"><label class="flbl">Category</label>
+            <select class="fsel" id="ai-cat"><option>Sales</option><option>Wholesale</option><option>Retail</option><option>Online Sales</option><option>Service Income</option><option>Commission</option><option>Export</option><option>Advance</option><option>Refund</option><option>Other</option></select>
+          </div>
+          <div class="fg"><label class="flbl">Amount (₹) *</label><div class="fpre"><span class="fpre-s">₹</span><input class="finp" type="number" id="ai-amount" placeholder="0.00"></div></div>
+          <div class="fg full"><label class="flbl">Notes</label><input class="finp" type="text" id="ai-notes" placeholder="Customer name, invoice no..."></div>
+        </div>
+        <div style="display:flex;gap:11px;margin-top:20px;">
+          <button class="btn btn-emerald" onclick="saveI()">💾 Save Income</button>
+          <button class="btn btn-ghost" onclick="clearAI()">Clear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LEDGER -->
+<div class="page" id="pg-ledger">
+  <div class="ph">
+    <div><div class="ph-title">Agency Ledger</div><div class="ph-sub">Complete payment status for every supplier</div></div>
+    <div class="ph-r"><button class="btn btn-ghost btn-sm" onclick="expLedger()">⬇ Export Ledger</button></div>
+  </div>
+  <div class="kgrid stagger">
+    <div class="kpi amber"><div class="kpi-bar"></div><div class="kpi-lbl">Total Purchased</div><div class="kpi-val" id="lk-pur">₹0</div></div>
+    <div class="kpi sky"><div class="kpi-bar"></div><div class="kpi-lbl">Total Paid</div><div class="kpi-val" id="lk-paid">₹0</div></div>
+    <div class="kpi rose"><div class="kpi-bar"></div><div class="kpi-lbl">Balance Due</div><div class="kpi-val" id="lk-bal">₹0</div></div>
+    <div class="kpi emerald"><div class="kpi-bar"></div><div class="kpi-lbl">% Settled</div><div class="kpi-val" id="lk-pct">0%</div></div>
+  </div>
+  <div class="led-grid" id="led-grid"></div>
+  <div id="led-empty" class="empty" style="display:none;"><div class="eico">📒</div><div class="emsg">Add agencies and purchases to see the ledger.</div></div>
+</div>
+
+<!-- AGENCIES -->
+<div class="page" id="pg-agencies">
+  <div class="ph"><div><div class="ph-title">Manage Agencies</div><div class="ph-sub">Your supplier network</div></div></div>
+  <div class="g12">
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">Add Agency</div></div>
+      <div class="panel-body">
+        <div style="display:flex;flex-direction:column;gap:13px;">
+          <div class="fg"><label class="flbl">Agency Name *</label><input class="finp" type="text" id="ag-name" placeholder="Supplier / agency name"></div>
+          <div class="fg"><label class="flbl">WhatsApp Number</label>
+            <div style="display:flex;gap:8px;">
+              <input class="finp" type="text" id="ag-phone" placeholder="+91 99999 99999 (for reminders)" style="flex:1;">
+            </div>
+            <div style="font-size:0.7rem;color:var(--text3);margin-top:4px;">⚡ Enter phone number to enable WhatsApp reminders</div>
+          </div>
+          <div class="fg"><label class="flbl">Location / Notes</label><input class="finp" type="text" id="ag-note" placeholder="City, state, speciality..."></div>
+          <button class="btn btn-amber btn-full" onclick="saveAg()">+ Add Agency</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">Agencies <span class="b ba" id="ag-bdg" style="margin-left:6px;">0</span></div></div>
+      <div class="tw panel-body np">
+        <table>
+          <thead><tr><th>Agency</th><th>WhatsApp</th><th>Purchased</th><th>Paid</th><th>Balance</th><th></th></tr></thead>
+          <tbody id="ag-tbody"></tbody>
+        </table>
+        <div id="ag-empty" class="empty" style="display:none;"><div class="eico">🏢</div><div class="emsg">No agencies yet.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-bg" id="pay-modal">
+  <div class="modal-box">
+    <div class="modal-title">💳 Record Payment to Agency</div>
+    <div class="modal-sub">Enter payment details below</div>
+    <div style="margin-bottom:16px;">
+      <div class="fg"><label class="flbl">Agency *</label><select class="fsel" id="pm-agency" onchange="updatePayBal()"><option value="">Select Agency</option></select></div>
+    </div>
+    <div class="pm-balance">
+      <div><div class="pm-bal-lbl">Outstanding Balance</div><div style="font-size:0.7rem;color:var(--text3);margin-top:2px;" id="pm-bal-detail">—</div></div>
+      <div class="pm-bal-val" id="pm-bal">₹0</div>
+    </div>
+    <div class="fgrid">
+      <div class="fg"><label class="flbl">Date *</label><input class="finp mono" type="date" id="pm-date"></div>
+      <div class="fg"><label class="flbl">Amount (₹) *</label><div class="fpre"><span class="fpre-s">₹</span><input class="finp" type="number" id="pm-amount" placeholder="0.00"></div></div>
+      <div class="fg"><label class="flbl">Payment Mode</label><select class="fsel" id="pm-mode"><option>Cash</option><option>Bank Transfer</option><option>UPI</option><option>Cheque</option><option>NEFT</option><option>RTGS</option><option>Other</option></select></div>
+      <div class="fg"><label class="flbl">Reference / UTR</label><input class="finp mono" type="text" id="pm-ref" placeholder="Txn ref, cheque no..."></div>
+      <div class="fg full"><label class="flbl">Notes</label><input class="finp" type="text" id="pm-notes" placeholder="Payment remarks..."></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px;">
+      <button class="btn btn-sky" onclick="savePay()">💳 Record Payment</button>
+      <button class="btn btn-ghost" onclick="closeModal('pay-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- INVOICE PRINT AREA (hidden, shows on print) -->
+<div id="invoice-print-area"></div>
+
+<div id="toast"><div class="tdot g" id="tdot"></div><span id="tmsg">Done</span></div>
+
+<script>
+// ═══════════════════════════════════════
+//  TRADEFLOW v5 — FULL ENGINE
+// ═══════════════════════════════════════
+let DB={purchases:[],income:[],agencies:[],payments:[]};
+let settings={bizName:'',ownerName:'',address:'',phone:'',waTemplate:'',waOwner:''};
+let gMonth='';
+
+function save(){localStorage.setItem('tf5',JSON.stringify(DB));localStorage.setItem('tf5s',JSON.stringify(settings));}
+function load(){
+  const s=localStorage.getItem('tf5');if(s)DB=JSON.parse(s);
+  const st=localStorage.getItem('tf5s');if(st)settings=Object.assign(settings,JSON.parse(st));
+  // Migrate from old key
+  const old=localStorage.getItem('tf4');if(old&&!s){DB=JSON.parse(old);}
+  const now=new Date();
+  const ym=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  gMonth=ym;
+  document.getElementById('gMonth').value=ym;
+  document.getElementById('ap-date').value=now.toISOString().split('T')[0];
+  document.getElementById('ai-date').value=now.toISOString().split('T')[0];
+  document.getElementById('pm-date').value=now.toISOString().split('T')[0];
+  // Load settings into fields
+  ['inv-biz-name','inv-owner','inv-address','inv-phone'].forEach((id,i)=>{
+    const v=[settings.bizName,settings.ownerName,settings.address,settings.phone][i];
+    if(document.getElementById(id))document.getElementById(id).value=v||'';
+  });
+  if(document.getElementById('wa-biz-name'))document.getElementById('wa-biz-name').value=settings.bizName||'';
+  if(document.getElementById('wa-owner-name'))document.getElementById('wa-owner-name').value=settings.ownerName||'';
+  if(document.getElementById('wa-template'))document.getElementById('wa-template').value=settings.waTemplate||defaultWATemplate();
+  refreshNav();renderDash();
+}
+
+function saveSettings(){
+  settings.bizName=document.getElementById('wa-biz-name')?.value||document.getElementById('inv-biz-name')?.value||'';
+  settings.ownerName=document.getElementById('wa-owner-name')?.value||document.getElementById('inv-owner')?.value||'';
+  settings.address=document.getElementById('inv-address')?.value||'';
+  settings.phone=document.getElementById('inv-phone')?.value||'';
+  settings.waTemplate=document.getElementById('wa-template')?.value||'';
+  // Sync both forms
+  if(document.getElementById('wa-biz-name'))document.getElementById('wa-biz-name').value=settings.bizName;
+  if(document.getElementById('inv-biz-name'))document.getElementById('inv-biz-name').value=settings.bizName;
+  if(document.getElementById('wa-owner-name'))document.getElementById('wa-owner-name').value=settings.ownerName;
+  if(document.getElementById('inv-owner'))document.getElementById('inv-owner').value=settings.ownerName;
+  save();updateWAPreview();
+}
+
+function defaultWATemplate(){return`Hello {AGENCY_NAME} 🙏\n\nThis is a friendly payment reminder from *{BIZ_NAME}*.\n\n📦 Total Purchased: *{TOTAL_PURCHASED}*\n💳 Amount Paid: *{AMOUNT_PAID}*\n⏳ *Balance Due: {BALANCE}*\n\nKindly arrange the payment at your earliest convenience.\n\nThank you!\n{OWNER_NAME}`;}
+
+// ── NAV ──
+function nav(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pg-'+id).classList.add('active');
+  if(btn){document.querySelectorAll('.ni-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+  const pages={dashboard:renderDash,purchases:()=>{refreshPurFilter();renderPur();},income:renderInc,payments:()=>{refreshPayFilter();renderPay();},whatsapp:renderWA,invoices:()=>{refreshInvFilter();renderInvoices();},ledger:renderLedger,agencies:renderAgs,'add-purchase':refreshAPForm,'add-income':()=>{}};
+  pages[id]?.();
+}
+function setMonth(m){gMonth=m;document.getElementById('gMonth').value=m;refreshNav();const a=document.querySelector('.page.active');if(a)nav(a.id.replace('pg-',''),null);}
+function fm(arr,f='date'){return gMonth?arr.filter(r=>r[f]&&r[f].startsWith(gMonth)):arr;}
+function fmt(n){return'₹'+Number(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});}
+function fmtD(d){if(!d)return'—';return new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function refreshNav(){
+  const p=fm(DB.purchases),i=fm(DB.income),py=fm(DB.payments);
+  document.getElementById('nb-pur').textContent=p.length;
+  document.getElementById('nb-inc').textContent=i.length;
+  document.getElementById('nb-pay').textContent=py.length;
+  const pending=DB.agencies.filter(ag=>agLed(ag.name).balance>0).length;
+  document.getElementById('nb-wa').textContent=pending||'✓';
+  document.getElementById('nb-wa').className='nbdg '+(pending>0?'wa':'grn');
+}
+function agLed(n){
+  const tp=DB.purchases.filter(r=>r.agency===n).reduce((s,r)=>s+Number(r.total),0);
+  const paid=DB.payments.filter(r=>r.agency===n).reduce((s,r)=>s+Number(r.amount),0);
+  const bal=Math.max(0,tp-paid),op=paid>tp?paid-tp:0,pct=tp>0?Math.min(100,(paid/tp)*100):paid>0?100:0;
+  return{totalPur:tp,totalPaid:paid,balance:bal,overpaid:op,pct};
+}
+const CAT_C={Sales:'e','Raw Materials':'a',Packaging:'s',Equipment:'v','Service Income':'e',Commission:'a',Wholesale:'s',Retail:'e','Online Sales':'s',Export:'a',General:'n',Electronics:'v',Textiles:'a','Food & Beverages':'s',Consumables:'n',Chemicals:'r',Machinery:'v',Other:'n'};
+const bmap={a:'ba',e:'be',r:'br',s:'bs',v:'bv',n:'bn'};
+function bdg(cat){const c=CAT_C[cat]||'n';return`<span class="b ${bmap[c]||'bn'}">${cat||'General'}</span>`;}
+
+// ══ DASHBOARD ══
+function renderDash(){
+  const pur=fm(DB.purchases),inc=fm(DB.income),pay=fm(DB.payments);
+  const tI=inc.reduce((s,r)=>s+Number(r.amount),0);
+  const tP=pur.reduce((s,r)=>s+Number(r.total),0);
+  const tPaid=pay.reduce((s,r)=>s+Number(r.amount),0);
+  const tBal=DB.agencies.reduce((s,ag)=>s+agLed(ag.name).balance,0);
+  const profit=tI-tP,margin=tI>0?((profit/tI)*100).toFixed(1):0;
+  document.getElementById('d-period').textContent=gMonth?'Period: '+mLabel(gMonth):'All time overview';
+  animN('d-inc',tI);document.getElementById('d-inc-s').textContent=inc.length+' entries';
+  animN('d-pur',tP);document.getElementById('d-pur-s').textContent=pur.length+' entries';
+  animN('d-paid',tPaid);document.getElementById('d-paid-s').textContent=pay.length+' payments';
+  animN('d-bal',tBal);document.getElementById('d-bal-s').textContent='across '+DB.agencies.length+' agencies';
+  document.getElementById('d-profit').textContent=fmt(profit);
+  document.getElementById('d-profit').className='kpi-val '+(profit>=0?'tg':'tr');
+  document.getElementById('d-margin').textContent=margin+'% margin';
+  const cleared=DB.agencies.filter(ag=>agLed(ag.name).balance===0&&agLed(ag.name).totalPur>0).length;
+  const pending=DB.agencies.filter(ag=>agLed(ag.name).balance>0).length;
+  document.getElementById('d-ags').textContent=DB.agencies.length;
+  document.getElementById('d-cleared').textContent=cleared;
+  document.getElementById('d-pending').textContent=pending;
+  document.getElementById('pl-inc').textContent=fmt(tI);
+  document.getElementById('pl-pur').textContent=fmt(tP);
+  document.getElementById('pl-paid').textContent=fmt(tPaid);
+  document.getElementById('pl-bal').textContent=fmt(tBal);
+  document.getElementById('pl-net').textContent=fmt(profit);
+  document.getElementById('pl-net').className='pl-v '+(profit>=0?'tg':'tr');
+  const ring=document.getElementById('sc-ring');
+  ring.className='sc-ring '+(profit>=0?'pos':'neg');
+  document.getElementById('sc-val').textContent=fmt(Math.abs(profit));
+  document.getElementById('sc-val').style.color=profit>=0?'var(--emerald)':'var(--rose)';
+  document.getElementById('sc-tag').textContent=profit>=0?'Profitable ✓':'Loss period ✗';
+  drawBar();renderAgBalProg();renderDashTxn();refreshNav();
+}
+function mLabel(ym){const[y,m]=ym.split('-');return new Date(y,m-1).toLocaleString('en-IN',{month:'long',year:'numeric'});}
+function animN(id,val){
+  const el=document.getElementById(id);if(!el)return;
+  const end=Math.abs(val),t0=performance.now(),dur=600;
+  function tick(t){const p=Math.min((t-t0)/dur,1),e=1-Math.pow(1-p,3);el.textContent=(val<0?'-':'')+fmt(Math.round(end*e));if(p<1)requestAnimationFrame(tick);}
+  requestAnimationFrame(tick);
+}
+function drawBar(){
+  const cv=document.getElementById('barChart');if(!cv)return;
+  const ctx=cv.getContext('2d'),now=new Date(),months=[];
+  for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));}
+  const iM={},pM={},pyM={};months.forEach(m=>{iM[m]=0;pM[m]=0;pyM[m]=0;});
+  DB.income.forEach(r=>{if(iM[r.date?.substring(0,7)]!==undefined)iM[r.date.substring(0,7)]+=Number(r.amount);});
+  DB.purchases.forEach(r=>{if(pM[r.date?.substring(0,7)]!==undefined)pM[r.date.substring(0,7)]+=Number(r.total);});
+  DB.payments.forEach(r=>{if(pyM[r.date?.substring(0,7)]!==undefined)pyM[r.date.substring(0,7)]+=Number(r.amount);});
+  const maxV=Math.max(...months.map(m=>Math.max(iM[m],pM[m],pyM[m])),1);
+  const W=cv.parentElement.offsetWidth-44||420;cv.width=W;cv.height=180;ctx.clearRect(0,0,W,180);
+  const pad=38,gap=8,bw=(W-pad*2-gap*months.length*3)/(months.length*3),cH=130;
+  ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const y=pad+cH*(i/4);ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(W-pad,y);ctx.stroke();}
+  months.forEach((m,i)=>{
+    const x=pad+i*(bw*3+gap);
+    [[iM[m],'rgba(16,185,129,0.85)','rgba(16,185,129,0.2)'],[pM[m],'rgba(244,63,94,0.85)','rgba(244,63,94,0.2)'],[pyM[m],'rgba(56,189,248,0.85)','rgba(56,189,248,0.2)']].forEach(([v,c1,c2],j)=>{
+      const h=Math.max((v/maxV)*cH,2),g=ctx.createLinearGradient(0,pad+cH-h,0,pad+cH);
+      g.addColorStop(0,c1);g.addColorStop(1,c2);ctx.fillStyle=g;ctx.beginPath();ctx.roundRect(x+j*(bw+2),pad+cH-h,bw,h,3);ctx.fill();
+    });
+    ctx.fillStyle='rgba(155,163,188,0.6)';ctx.font='9px Syne';ctx.textAlign='center';
+    const ml=m.split('-')[1];ctx.fillText(['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(ml)-1],x+bw,pad+cH+15);
+  });
+}
+function renderAgBalProg(){
+  const el=document.getElementById('ag-bal-prog');
+  const ags=DB.agencies.map(ag=>({name:ag.name,...agLed(ag.name)})).sort((a,b)=>b.totalPur-a.totalPur).slice(0,6);
+  if(!ags.length){el.innerHTML='<div class="empty" style="padding:20px 0;"><div class="eico">🏢</div><div class="emsg">No agency data yet</div></div>';return;}
+  el.innerHTML=ags.map((a,i)=>`
+    <div class="pi">
+      <div class="pi-hd"><span class="pi-nm">${a.name}</span>
+        <div style="display:flex;gap:8px;">
+          <span style="font-size:0.68rem;color:var(--text3);">Paid: <span class="mono ts">${fmt(a.totalPaid)}</span></span>
+          <span style="font-size:0.68rem;color:var(--text3);">Due: <span class="mono ${a.balance>0?'tr':'tg'}">${fmt(a.balance)}</span></span>
+        </div>
+      </div>
+      <div class="pi-track"><div id="dpf${i}" class="pi-fill" style="width:0%;background:${a.balance<=0?'var(--emerald)':'var(--amber)'}"></div></div>
+    </div>`).join('');
+  setTimeout(()=>ags.forEach((a,i)=>{const e=document.getElementById('dpf'+i);if(e)e.style.width=((a.totalPaid/Math.max(a.totalPur,1))*100).toFixed(1)+'%';}),60);
+}
+function renderDashTxn(){
+  const all=[
+    ...fm(DB.income).map(r=>({date:r.date,nm:r.source,meta:r.category,type:'inc',amt:r.amount})),
+    ...fm(DB.purchases).map(r=>({date:r.date,nm:r.product,meta:r.agency||'—',type:'pur',amt:r.total})),
+    ...fm(DB.payments).map(r=>({date:r.date,nm:'Payment → '+r.agency,meta:r.mode||'',type:'pay',amt:r.amount}))
+  ].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,8);
+  const el=document.getElementById('dash-txn');
+  if(!all.length){el.innerHTML='<div class="empty" style="padding:28px 0;"><div class="eico">📭</div><div class="emsg">No transactions yet</div></div>';return;}
+  el.innerHTML=all.map(r=>`
+    <div class="txn">
+      <div class="txn-ico ${r.type}">${{inc:'💰',pur:'🛒',pay:'💳'}[r.type]}</div>
+      <div class="txn-body"><div class="txn-nm">${r.nm}</div><div class="txn-meta">${r.meta} · ${fmtD(r.date)}</div></div>
+      <div class="txn-amt ${r.type}">${{inc:'+',pur:'−',pay:'↑'}[r.type]}${fmt(r.amt)}</div>
+    </div>`).join('');
+}
+
+// ══ PURCHASES ══
+function renderPur(){
+  const q=(document.getElementById('p-search')?.value||'').toLowerCase();
+  const af=document.getElementById('p-ag-filter')?.value||'';
+  let rows=fm(DB.purchases);
+  if(q)rows=rows.filter(r=>(r.product+r.agency+(r.category||'')+(r.notes||'')).toLowerCase().includes(q));
+  if(af)rows=rows.filter(r=>r.agency===af);
+  rows=rows.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const tb=document.getElementById('p-tbody'),em=document.getElementById('p-empty');
+  document.getElementById('p-bdg').textContent=rows.length;
+  if(!rows.length){tb.innerHTML='';em.style.display='block';}
+  else{em.style.display='none';tb.innerHTML=rows.map(r=>`<tr>
+    <td class="tm mono" style="font-size:.78rem;white-space:nowrap;">${fmtD(r.date)}</td>
+    <td><strong>${r.product}</strong></td>
+    <td><span class="b bs">${r.agency||'—'}</span></td>
+    <td>${bdg(r.category||'General')}</td>
+    <td class="mono tm">${r.qty||1}</td>
+    <td class="mono ta">${fmt(r.total)}</td>
+    <td class="tm" style="font-size:.76rem;">${r.notes||'—'}</td>
+    <td><button class="btn btn-print btn-xs" onclick="printInvoice('${r.id}')">🖨 Invoice</button></td>
+    <td><button class="btn-del" onclick="delP('${r.id}')">✕</button></td>
+  </tr>`).join('');}
+  const total=rows.reduce((s,r)=>s+Number(r.total),0);
+  const ags=new Set(rows.map(r=>r.agency).filter(Boolean));
+  document.getElementById('pk-total').textContent=fmt(total);
+  document.getElementById('pk-count').textContent=rows.length;
+  document.getElementById('pk-avg').textContent=rows.length?fmt(total/rows.length):'₹0';
+  document.getElementById('pk-ags').textContent=ags.size;
+}
+function refreshPurFilter(){
+  const s=document.getElementById('p-ag-filter');if(!s)return;
+  const cur=s.value,ags=[...new Set(DB.purchases.map(p=>p.agency).filter(Boolean))].sort();
+  s.innerHTML='<option value="">All Agencies</option>'+ags.map(a=>`<option value="${a}">${a}</option>`).join('');
+  s.value=cur;
+}
+function saveP(){
+  const product=document.getElementById('ap-product').value.trim();
+  const agency=document.getElementById('ap-agency').value.trim();
+  const date=document.getElementById('ap-date').value;
+  const price=parseFloat(document.getElementById('ap-price').value)||0;
+  const qty=parseFloat(document.getElementById('ap-qty').value)||1;
+  if(!product||!date||!price){toast('⚠ Fill Product, Date and Price','a');return;}
+  DB.purchases.push({id:uid(),product,agency,date,category:document.getElementById('ap-cat').value,qty,price,total:qty*price,notes:document.getElementById('ap-notes').value.trim()});
+  if(agency&&!DB.agencies.find(a=>a.name.toLowerCase()===agency.toLowerCase()))
+    DB.agencies.push({id:uid(),name:agency,phone:'',notes:''});
+  save();
+  const ok=document.getElementById('ap-ok');ok.style.display='block';setTimeout(()=>ok.style.display='none',2800);
+  clearAP();toast('✅ Purchase saved!','g');refreshNav();
+}
+function delP(id){if(!confirm('Delete this purchase?'))return;DB.purchases=DB.purchases.filter(r=>r.id!==id);save();renderPur();toast('Deleted','a');}
+function calcAP(){const q=parseFloat(document.getElementById('ap-qty').value)||0,p=parseFloat(document.getElementById('ap-price').value)||0;document.getElementById('ap-total').textContent='₹ '+Number(q*p).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function clearAP(){['ap-product','ap-notes'].forEach(id=>document.getElementById(id).value='');document.getElementById('ap-agency').value='';document.getElementById('ap-qty').value='1';document.getElementById('ap-price').value='';document.getElementById('ap-total').textContent='₹ 0.00';document.getElementById('ap-date').value=new Date().toISOString().split('T')[0];}
+function refreshAPForm(){
+  const dl=document.getElementById('ap-ag-dl');
+  if(dl)dl.innerHTML=DB.agencies.map(a=>`<option value="${a.name}">`).join('');
+  const chips=document.getElementById('ap-chips');
+  if(chips)chips.innerHTML=DB.agencies.slice(0,10).map(a=>`<span class="ag-chip" onclick="document.getElementById('ap-agency').value='${a.name}'">${a.name}</span>`).join('');
+}
+
+// ══ INCOME ══
+function renderInc(){
+  const q=(document.getElementById('i-search')?.value||'').toLowerCase();
+  let rows=fm(DB.income);
+  if(q)rows=rows.filter(r=>(r.source+(r.category||'')+(r.notes||'')).toLowerCase().includes(q));
+  rows=rows.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const tb=document.getElementById('i-tbody'),em=document.getElementById('i-empty');
+  document.getElementById('i-bdg').textContent=rows.length;
+  if(!rows.length){tb.innerHTML='';em.style.display='block';}
+  else{em.style.display='none';tb.innerHTML=rows.map(r=>`<tr>
+    <td class="tm mono" style="font-size:.78rem;white-space:nowrap;">${fmtD(r.date)}</td>
+    <td><strong>${r.source}</strong></td>
+    <td>${bdg(r.category||'Other')}</td>
+    <td class="tm" style="font-size:.76rem;">${r.notes||'—'}</td>
+    <td class="mono tg"><strong>${fmt(r.amount)}</strong></td>
+    <td><button class="btn-del" onclick="delI('${r.id}')">✕</button></td>
+  </tr>`).join('');}
+  const total=rows.reduce((s,r)=>s+Number(r.amount),0);
+  const now=new Date();const cm=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  const mT=DB.income.filter(r=>r.date?.startsWith(cm)).reduce((s,r)=>s+Number(r.amount),0);
+  document.getElementById('ik-total').textContent=fmt(total);
+  document.getElementById('ik-count').textContent=rows.length;
+  document.getElementById('ik-avg').textContent=rows.length?fmt(total/rows.length):'₹0';
+  document.getElementById('ik-month').textContent=fmt(mT);
+}
+function saveI(){
+  const source=document.getElementById('ai-source').value.trim();
+  const date=document.getElementById('ai-date').value;
+  const amount=parseFloat(document.getElementById('ai-amount').value)||0;
+  if(!source||!date||!amount){toast('⚠ Fill Source, Date and Amount','a');return;}
+  DB.income.push({id:uid(),source,date,category:document.getElementById('ai-cat').value,amount,notes:document.getElementById('ai-notes').value.trim()});
+  save();
+  const ok=document.getElementById('ai-ok');ok.style.display='block';setTimeout(()=>ok.style.display='none',2800);
+  clearAI();toast('✅ Income saved!','g');refreshNav();
+}
+function delI(id){if(!confirm('Delete?'))return;DB.income=DB.income.filter(r=>r.id!==id);save();renderInc();toast('Deleted','a');}
+function clearAI(){['ai-source','ai-notes'].forEach(id=>document.getElementById(id).value='');document.getElementById('ai-amount').value='';document.getElementById('ai-date').value=new Date().toISOString().split('T')[0];}
+
+// ══ PAYMENTS ══
+function renderPay(){
+  const af=document.getElementById('pay-ag-filter')?.value||'';
+  let rows=fm(DB.payments);
+  if(af)rows=rows.filter(r=>r.agency===af);
+  rows=rows.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const tb=document.getElementById('pay-tbody'),em=document.getElementById('pay-empty');
+  document.getElementById('pay-bdg').textContent=rows.length;
+  if(!rows.length){tb.innerHTML='';em.style.display='block';}
+  else{em.style.display='none';tb.innerHTML=rows.map(r=>`<tr>
+    <td class="tm mono" style="font-size:.78rem;white-space:nowrap;">${fmtD(r.date)}</td>
+    <td><strong class="ts">${r.agency}</strong></td>
+    <td><span class="b bs">${r.mode||'Cash'}</span></td>
+    <td class="tm mono" style="font-size:.76rem;">${r.ref||'—'}</td>
+    <td class="tm" style="font-size:.76rem;">${r.notes||'—'}</td>
+    <td class="mono ts"><strong>${fmt(r.amount)}</strong></td>
+    <td><button class="btn-del" onclick="delPay('${r.id}')">✕</button></td>
+  </tr>`).join('');}
+  const total=rows.reduce((s,r)=>s+Number(r.amount),0);
+  const totalBal=DB.agencies.reduce((s,ag)=>s+agLed(ag.name).balance,0);
+  const cleared=DB.agencies.filter(ag=>agLed(ag.name).balance===0&&agLed(ag.name).totalPur>0).length;
+  document.getElementById('payk-total').textContent=fmt(total);
+  document.getElementById('payk-count').textContent=rows.length;
+  document.getElementById('payk-bal').textContent=fmt(totalBal);
+  document.getElementById('payk-clear').textContent=cleared;
+}
+function refreshPayFilter(){
+  const s=document.getElementById('pay-ag-filter');if(!s)return;
+  s.innerHTML='<option value="">All Agencies</option>'+DB.agencies.map(a=>`<option value="${a.name}">${a.name}</option>`).join('');
+}
+function delPay(id){if(!confirm('Delete this payment?'))return;DB.payments=DB.payments.filter(r=>r.id!==id);save();renderPay();renderDash();toast('Deleted','a');}
+function openPayModal(agName){
+  const sel=document.getElementById('pm-agency');
+  sel.innerHTML='<option value="">Select Agency</option>'+DB.agencies.map(a=>`<option value="${a.name}" ${a.name===agName?'selected':''}>${a.name}</option>`).join('');
+  document.getElementById('pm-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('pm-amount').value='';document.getElementById('pm-ref').value='';document.getElementById('pm-notes').value='';
+  if(agName)updatePayBal();
+  openModal('pay-modal');
+}
+function updatePayBal(){
+  const agName=document.getElementById('pm-agency').value;
+  if(!agName){document.getElementById('pm-bal').textContent='₹0';document.getElementById('pm-bal-detail').textContent='Select an agency';return;}
+  const l=agLed(agName);
+  document.getElementById('pm-bal').textContent=fmt(l.balance);
+  document.getElementById('pm-bal').style.color=l.balance>0?'var(--rose)':'var(--emerald)';
+  document.getElementById('pm-bal-detail').textContent=`Purchased: ${fmt(l.totalPur)} | Paid so far: ${fmt(l.totalPaid)}`;
+}
+function savePay(){
+  const agency=document.getElementById('pm-agency').value;
+  const date=document.getElementById('pm-date').value;
+  const amount=parseFloat(document.getElementById('pm-amount').value)||0;
+  if(!agency||!date||!amount){toast('⚠ Fill Agency, Date and Amount','a');return;}
+  DB.payments.push({id:uid(),agency,date,amount,mode:document.getElementById('pm-mode').value,ref:document.getElementById('pm-ref').value.trim(),notes:document.getElementById('pm-notes').value.trim()});
+  save();closeModal('pay-modal');renderDash();refreshNav();
+  toast('💳 Payment of '+fmt(amount)+' to '+agency+' recorded!','g');
+}
+
+// ═══════════════════════════════
+//  WHATSAPP REMINDERS
+// ═══════════════════════════════
+function buildWAMsg(ag,l){
+  const tmpl=(settings.waTemplate||defaultWATemplate());
+  return tmpl
+    .replace(/{AGENCY_NAME}/g,ag.name)
+    .replace(/{BIZ_NAME}/g,settings.bizName||'Our Business')
+    .replace(/{TOTAL_PURCHASED}/g,fmt(l.totalPur))
+    .replace(/{AMOUNT_PAID}/g,fmt(l.totalPaid))
+    .replace(/{BALANCE}/g,fmt(l.balance))
+    .replace(/{OWNER_NAME}/g,settings.ownerName||'');
+}
+function cleanPhone(p){return(p||'').replace(/[\s\-\(\)]/g,'').replace(/^\+/,'');}
+function waLink(phone,msg){const p=cleanPhone(phone);const url='https://wa.me/'+(p?p:'')+'?text='+encodeURIComponent(msg);return url;}
+
+function renderWA(){
+  if(document.getElementById('wa-biz-name'))document.getElementById('wa-biz-name').value=settings.bizName||'';
+  if(document.getElementById('wa-owner-name'))document.getElementById('wa-owner-name').value=settings.ownerName||'';
+  if(document.getElementById('wa-template'))document.getElementById('wa-template').value=settings.waTemplate||defaultWATemplate();
+  const pending=DB.agencies.filter(ag=>agLed(ag.name).balance>0);
+  const cleared=DB.agencies.filter(ag=>agLed(ag.name).balance===0&&agLed(ag.name).totalPur>0).length;
+  const totalBal=pending.reduce((s,ag)=>s+agLed(ag.name).balance,0);
+  document.getElementById('wak-pending').textContent=pending.length;
+  document.getElementById('wak-total').textContent=fmt(totalBal);
+  document.getElementById('wak-cleared').textContent=cleared;
+  const grid=document.getElementById('wa-cards-grid');
+  const em=document.getElementById('wa-empty');
+  if(!pending.length){grid.innerHTML='';em.style.display='block';return;}
+  em.style.display='none';
+  grid.innerHTML=pending.map(ag=>{
+    const l=agLed(ag.name);
+    const msg=buildWAMsg(ag,l);
+    const hasPhone=ag.phone&&cleanPhone(ag.phone).length>=10;
+    const link=waLink(ag.phone,msg);
+    return`<div class="wa-card">
+      <div class="wa-card-header">
+        <div>
+          <div class="wa-agency-name">${ag.name}</div>
+          <div class="wa-agency-phone">${hasPhone?'📱 '+ag.phone:'⚠ No phone — add in Manage Agencies'}</div>
+        </div>
+        <span class="b ${hasPhone?'bwa':'br'}">${hasPhone?'✓ Ready':'No Phone'}</span>
+      </div>
+      <div class="wa-stats">
+        <div class="wa-stat"><div class="wa-stat-lbl">Purchased</div><div class="wa-stat-val ta">${fmt(l.totalPur)}</div></div>
+        <div class="wa-stat"><div class="wa-stat-lbl">Paid</div><div class="wa-stat-val tg">${fmt(l.totalPaid)}</div></div>
+        <div class="wa-stat"><div class="wa-stat-lbl">Balance</div><div class="wa-stat-val tr">${fmt(l.balance)}</div></div>
+      </div>
+      <div class="wa-msg-preview">${escHtml(msg)}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        ${hasPhone
+          ?`<a href="${link}" target="_blank" class="btn btn-wa btn-sm" style="text-decoration:none;">💬 Open WhatsApp</a>`
+          :`<button class="btn btn-ghost btn-sm" onclick="nav('agencies',null)">📱 Add Phone Number</button>`
+        }
+        <button class="btn btn-ghost btn-sm" onclick="copyMsg('${ag.name}')">📋 Copy Message</button>
+        <button class="btn btn-pay btn-sm" onclick="openPayModal('${ag.name}')">💳 Record Payment</button>
+      </div>
+    </div>`;
+  }).join('');
+  updateWAPreview();
+}
+function updateWAPreview(){
+  const pending=DB.agencies.filter(ag=>agLed(ag.name).balance>0);
+  const prev=document.getElementById('wa-preview');if(!prev)return;
+  if(!pending.length){prev.textContent='No agencies with balance. Preview will appear here.';return;}
+  const ag=pending[0],l=agLed(ag.name);
+  prev.textContent=buildWAMsg(ag,l);
+}
+function escHtml(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function copyMsg(agName){
+  const ag=DB.agencies.find(a=>a.name===agName);if(!ag)return;
+  const l=agLed(agName);
+  navigator.clipboard.writeText(buildWAMsg(ag,l)).then(()=>toast('📋 Message copied!','wa')).catch(()=>toast('Copy failed — try manually','r'));
+}
+function sendAllWA(){
+  const pending=DB.agencies.filter(ag=>agLed(ag.name).balance>0&&ag.phone&&cleanPhone(ag.phone).length>=10);
+  if(!pending.length){toast('No agencies with phone numbers and balance','a');return;}
+  pending.forEach((ag,i)=>{
+    const l=agLed(ag.name);const msg=buildWAMsg(ag,l);
+    setTimeout(()=>window.open(waLink(ag.phone,msg),'_blank'),i*800);
+  });
+  toast(`💬 Opening WhatsApp for ${pending.length} agencies...`,'wa');
+}
+
+// ═══════════════════════════════
+//  INVOICE GENERATION & PRINT
+// ═══════════════════════════════
+function renderInvoices(){
+  const q=(document.getElementById('inv-search')?.value||'').toLowerCase();
+  const af=document.getElementById('inv-ag-filter')?.value||'';
+  let rows=fm(DB.purchases);
+  if(q)rows=rows.filter(r=>(r.product+r.agency+(r.notes||'')).toLowerCase().includes(q));
+  if(af)rows=rows.filter(r=>r.agency===af);
+  rows=rows.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const tb=document.getElementById('inv-tbody'),em=document.getElementById('inv-empty');
+  if(!rows.length){tb.innerHTML='';em.style.display='block';return;}
+  em.style.display='none';
+  tb.innerHTML=rows.map(r=>{
+    const l=agLed(r.agency);
+    let statusBdg;
+    if(l.balance<=0)statusBdg='<span class="b be">✓ Cleared</span>';
+    else if(l.totalPaid===0)statusBdg='<span class="b br">Unpaid</span>';
+    else statusBdg='<span class="b ba">Partial</span>';
+    return`<tr>
+      <td class="tm mono" style="font-size:.78rem;white-space:nowrap;">${fmtD(r.date)}</td>
+      <td><strong>${r.product}</strong><div class="tm" style="font-size:.72rem;">${r.category||''}</div></td>
+      <td><span class="b bs">${r.agency||'—'}</span></td>
+      <td class="mono tm">${r.qty||1}</td>
+      <td class="mono ta"><strong>${fmt(r.total)}</strong></td>
+      <td>${statusBdg}</td>
+      <td><button class="btn btn-print btn-xs" onclick="printInvoice('${r.id}')">🖨 Print Invoice</button></td>
+    </tr>`;
+  }).join('');
+}
+function refreshInvFilter(){
+  const s=document.getElementById('inv-ag-filter');if(!s)return;
+  s.innerHTML='<option value="">All Agencies</option>'+[...new Set(DB.purchases.map(p=>p.agency).filter(Boolean))].sort().map(a=>`<option value="${a}">${a}</option>`).join('');
+}
+
+function printInvoice(purId){
+  const pur=DB.purchases.find(r=>r.id===purId);if(!pur)return;
+  const ag=DB.agencies.find(a=>a.name===pur.agency)||{name:pur.agency||'Unknown',phone:'',notes:''};
+  const l=agLed(ag.name);
+  const invNum='INV-'+purId.toUpperCase().slice(-6);
+  let payStatus,stampClass;
+  if(l.balance<=0){payStatus='PAID';stampClass='paid';}
+  else if(l.totalPaid===0){payStatus='UNPAID';stampClass='unpaid';}
+  else{payStatus='PARTIAL';stampClass='partial';}
+  const bizName=settings.bizName||'Your Business';
+  const ownerName=settings.ownerName||'';
+  const address=settings.address||'';
+  const phone=settings.phone||'';
+  const subtotal=Number(pur.qty||1)*Number(pur.price||pur.total);
+  const html=`
+  <div class="inv-wrap" style="position:relative;">
+    <div class="inv-status-stamp ${stampClass}">${payStatus}</div>
+    <div class="inv-header">
+      <div>
+        <div class="inv-brand">${escHtml(bizName).replace(/(\w+)$/,'<span>$1</span>')}</div>
+        <div class="inv-brand-sub">Business Invoice</div>
+        ${address?`<div style="font-size:0.78rem;color:#888;margin-top:6px;">${escHtml(address)}</div>`:''}
+        ${phone?`<div style="font-size:0.78rem;color:#888;">${escHtml(phone)}</div>`:''}
+      </div>
+      <div class="inv-meta">
+        <div class="inv-title">INVOICE</div>
+        <div class="inv-num"># ${invNum}</div>
+        <div class="inv-date">Date: ${fmtD(pur.date)}</div>
+        <div class="inv-date" style="margin-top:8px;font-size:0.75rem;color:#aaa;">Generated: ${fmtD(new Date().toISOString().split('T')[0])}</div>
+      </div>
+    </div>
+    <div class="inv-parties">
+      <div>
+        <div class="inv-party-lbl">From (Buyer)</div>
+        <div class="inv-party-name">${escHtml(bizName)}</div>
+        ${ownerName?`<div class="inv-party-sub">${escHtml(ownerName)}</div>`:''}
+        ${address?`<div class="inv-party-sub">${escHtml(address)}</div>`:''}
+        ${phone?`<div class="inv-party-sub">${escHtml(phone)}</div>`:''}
+      </div>
+      <div>
+        <div class="inv-party-lbl">To (Supplier / Agency)</div>
+        <div class="inv-party-name">${escHtml(ag.name)}</div>
+        ${ag.phone?`<div class="inv-party-sub">📱 ${escHtml(ag.phone)}</div>`:''}
+        ${ag.notes?`<div class="inv-party-sub">${escHtml(ag.notes)}</div>`:''}
+      </div>
+    </div>
+    <table class="inv-table">
+      <thead><tr><th>#</th><th>Product / Description</th><th>Category</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><strong>${escHtml(pur.product)}</strong>${pur.notes?`<br><span style="font-size:.78rem;color:#777;">${escHtml(pur.notes)}</span>`:''}</td>
+          <td>${escHtml(pur.category||'General')}</td>
+          <td>${pur.qty||1}</td>
+          <td>₹${Number(pur.price||0).toLocaleString('en-IN')}</td>
+          <td>₹${Number(subtotal).toLocaleString('en-IN')}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="inv-totals">
+      <div class="inv-total-row"><span>Subtotal</span><span class="inv-total-val">₹${Number(subtotal).toLocaleString('en-IN')}</span></div>
+      <div class="inv-total-row grand"><span>TOTAL</span><span class="inv-total-val">₹${Number(subtotal).toLocaleString('en-IN')}</span></div>
+    </div>
+    <div class="inv-notes-section">
+      <div class="inv-notes-lbl">Payment Summary for ${escHtml(ag.name)}</div>
+      <div class="inv-notes-txt">
+        Total Purchased from Agency: <strong>₹${Number(l.totalPur).toLocaleString('en-IN')}</strong><br>
+        Total Paid to Agency: <strong style="color:#059669;">₹${Number(l.totalPaid).toLocaleString('en-IN')}</strong><br>
+        Outstanding Balance: <strong style="color:${l.balance>0?'#e11d48':'#059669'};">₹${Number(l.balance).toLocaleString('en-IN')}</strong>
+        ${l.balance<=0?' ✓ Fully cleared':''}
+      </div>
+    </div>
+    <div class="inv-footer">
+      <div>Thank you for your business!</div>
+      <div style="margin-top:6px;">Generated by TradeFlow Business Manager</div>
+    </div>
+  </div>`;
+  const printArea=document.getElementById('invoice-print-area');
+  printArea.innerHTML=html;
+  printArea.style.display='block';
+  setTimeout(()=>{window.print();setTimeout(()=>{printArea.style.display='none';},500);},100);
+}
+
+// ══ LEDGER ══
+function renderLedger(){
+  const grid=document.getElementById('led-grid'),em=document.getElementById('led-empty');
+  if(!DB.agencies.length){grid.innerHTML='';em.style.display='block';['lk-pur','lk-paid','lk-bal','lk-pct'].forEach(id=>document.getElementById(id).textContent=id==='lk-pct'?'0%':'₹0');return;}
+  em.style.display='none';
+  const ledgers=DB.agencies.map(ag=>({...ag,...agLed(ag.name)}));
+  const tp=ledgers.reduce((s,l)=>s+l.totalPur,0),tpd=ledgers.reduce((s,l)=>s+l.totalPaid,0),tbal=ledgers.reduce((s,l)=>s+l.balance,0);
+  document.getElementById('lk-pur').textContent=fmt(tp);
+  document.getElementById('lk-paid').textContent=fmt(tpd);
+  document.getElementById('lk-bal').textContent=fmt(tbal);
+  document.getElementById('lk-pct').textContent=(tp>0?((tpd/tp)*100).toFixed(1):0)+'%';
+  grid.innerHTML=ledgers.sort((a,b)=>b.balance-a.balance).map((l,i)=>{
+    let status,sClass;
+    if(l.totalPur===0&&l.totalPaid===0){status='No Purchases';sClass='partial';}
+    else if(l.balance===0&&l.overpaid===0){status='✓ Fully Cleared';sClass='clear';}
+    else if(l.overpaid>0){status='↑ Overpaid '+fmt(l.overpaid);sClass='over';}
+    else if(l.totalPaid===0){status='✗ Not Paid';sClass='unpaid';}
+    else{status='⟳ Partial — Due: '+fmt(l.balance);sClass='partial';}
+    const pct=l.totalPur>0?Math.min(100,(l.totalPaid/l.totalPur)*100):l.totalPaid>0?100:0;
+    return`<div class="led-card">
+      <div class="led-hd">
+        <div><div class="led-name">${l.name}</div><div class="led-contact">${l.phone?'📱 '+l.phone:'No phone'}</div></div>
+        <button class="btn-pay" onclick="openPayModal('${l.name}')">+ Pay</button>
+      </div>
+      <div class="led-body">
+        <div class="led-stat">
+          <div class="led-stat-item"><div class="ls-lbl">Purchased</div><div class="ls-val purchases">${fmt(l.totalPur)}</div></div>
+          <div class="led-stat-item"><div class="ls-lbl">Paid</div><div class="ls-val paid">${fmt(l.totalPaid)}</div></div>
+          <div class="led-stat-item"><div class="ls-lbl">Balance</div><div class="ls-val balance ${l.balance===0?'zero':''}">${fmt(l.balance)}</div></div>
+        </div>
+        <div class="led-prog">
+          <div class="led-prog-lbl"><span>Payment Progress</span><span>${pct.toFixed(1)}%</span></div>
+          <div class="led-prog-track"><div id="lf${i}" class="led-prog-fill ${l.overpaid>0?'overpaid':''}" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="led-foot">
+        <div class="led-status ${sClass}">${status}</div>
+        <div class="led-actions">
+          ${l.phone?`<a href="${waLink(l.phone,buildWAMsg(l,l))}" target="_blank" class="btn btn-wa-ghost btn-xs" style="text-decoration:none;">💬 WA</a>`:''}
+        </div>
+      </div>
+    </div>`;}).join('');
+  setTimeout(()=>ledgers.forEach((l,i)=>{const e=document.getElementById('lf'+i);if(e){const p=l.totalPur>0?Math.min(100,(l.totalPaid/l.totalPur)*100):l.totalPaid>0?100:0;e.style.width=p.toFixed(1)+'%';}}),60);
+}
+
+// ══ AGENCIES ══
+function renderAgs(){
+  const tb=document.getElementById('ag-tbody'),em=document.getElementById('ag-empty');
+  document.getElementById('ag-bdg').textContent=DB.agencies.length;
+  if(!DB.agencies.length){tb.innerHTML='';em.style.display='block';return;}
+  em.style.display='none';
+  tb.innerHTML=DB.agencies.map(ag=>{
+    const l=agLed(ag.name);
+    return`<tr>
+      <td><strong>${ag.name}</strong>${ag.notes?`<div style="font-size:.72rem;color:var(--text3);">${ag.notes}</div>`:''}</td>
+      <td>${ag.phone?`<a href="https://wa.me/${cleanPhone(ag.phone)}" target="_blank" class="twa mono" style="text-decoration:none;font-size:.8rem;">💬 ${ag.phone}</a>`:'<span class="tm">—</span>'}</td>
+      <td class="mono ta">${fmt(l.totalPur)}</td>
+      <td class="mono tg">${fmt(l.totalPaid)}</td>
+      <td class="mono ${l.balance>0?'tr':'tg'}"><strong>${fmt(l.balance)}</strong></td>
+      <td style="display:flex;gap:6px;align-items:center;">
+        <button class="btn-pay" onclick="openPayModal('${ag.name}')">Pay</button>
+        <button class="btn-del" onclick="delAg('${ag.id}')">✕</button>
+      </td>
+    </tr>`;}).join('');
+}
+function saveAg(){
+  const name=document.getElementById('ag-name').value.trim();
+  if(!name){toast('⚠ Name required','a');return;}
+  if(DB.agencies.find(a=>a.name.toLowerCase()===name.toLowerCase())){toast('Already exists','a');return;}
+  DB.agencies.push({id:uid(),name,phone:document.getElementById('ag-phone').value.trim(),notes:document.getElementById('ag-note').value.trim()});
+  save();['ag-name','ag-phone','ag-note'].forEach(id=>document.getElementById(id).value='');
+  renderAgs();toast('✅ Agency added!','g');
+}
+function delAg(id){if(!confirm('Remove agency?'))return;DB.agencies=DB.agencies.filter(a=>a.id!==id);save();renderAgs();toast('Removed','a');}
+
+// ══ MODAL HELPERS ══
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.getElementById('pay-modal').addEventListener('click',function(e){if(e.target===this)closeModal('pay-modal');});
+
+// ══ EXPORTS ══
+function toCSV(h,rows){return[h.join(','),...rows.map(r=>r.map(c=>'"'+String(c||'').replace(/"/g,'""')+'"').join(','))].join('\n');}
+function dl(name,content){const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(content);a.download=name;a.click();}
+function expAll(){
+  const all=[...DB.income.map(r=>['Income',r.date,r.source,r.category,'','',r.amount,r.notes||'']),
+    ...DB.purchases.map(r=>['Purchase',r.date,r.product,r.category,r.agency,'',r.total,r.notes||'']),
+    ...DB.payments.map(r=>['Payment',r.date,'Payment to '+r.agency,'',r.agency,r.mode,r.amount,r.ref||''])].sort((a,b)=>new Date(b[1])-new Date(a[1]));
+  dl('tradeflow-all.csv',toCSV(['Type','Date','Description','Category','Agency','Mode','Amount','Notes'],all));
+  toast('📥 Exported!','g');
+}
+function expPur(){dl('purchases.csv',toCSV(['Date','Product','Agency','Category','Qty','Unit Price','Total','Notes'],fm(DB.purchases).map(r=>[r.date,r.product,r.agency,r.category,r.qty,r.price,r.total,r.notes||''])));toast('📥 Exported','g');}
+function expInc(){dl('income.csv',toCSV(['Date','Source','Category','Amount','Notes'],fm(DB.income).map(r=>[r.date,r.source,r.category,r.amount,r.notes||''])));toast('📥 Exported','g');}
+function expPay(){dl('payments.csv',toCSV(['Date','Agency','Mode','Reference','Amount','Notes'],fm(DB.payments).map(r=>[r.date,r.agency,r.mode,r.ref||'',r.amount,r.notes||''])));toast('📥 Exported','g');}
+function expLedger(){
+  const rows=DB.agencies.map(ag=>{const l=agLed(ag.name);return[ag.name,ag.phone||'',l.totalPur,l.totalPaid,l.balance,l.balance<=0?'CLEARED':'PENDING'];});
+  dl('ledger.csv',toCSV(['Agency','Phone','Total Purchased','Total Paid','Balance Due','Status'],rows));
+  toast('📥 Ledger exported','g');
+}
+
+// ══ TOAST ══
+function toast(msg,type='g'){
+  const t=document.getElementById('toast'),d=document.getElementById('tdot');
+  document.getElementById('tmsg').textContent=msg;d.className='tdot '+type;
+  t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3400);
+}
+
+// ══ RESIZE ══
+let _rt;window.addEventListener('resize',()=>{clearTimeout(_rt);_rt=setTimeout(()=>{if(document.getElementById('pg-dashboard').classList.contains('active'))drawBar();},200);});
+
+// ══ INIT ══
+load();
+</script>
+</body>
+</html>
